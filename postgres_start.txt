@@ -1,0 +1,1916 @@
+--drop database if exists institute;
+--create database institute;
+--use institute;
+
+drop table if exists client cascade;
+create table client (
+  id serial primary key,
+  firstname varchar(255),
+  lastname varchar(255),
+  license varchar(255),
+  email varchar(255),
+  password varchar(255),
+  ip_address varchar(255),
+  reset_password_token varchar(255),
+  reset_password_expires timestamp,
+  login_dt date,
+  unsubscribe_dt date,
+  created timestamp
+);
+create unique index on client(email);
+
+insert into client values(1, 'John', 'Doe', 'MD', 'dr@test.com', '$2a$08$j9tLFDe2qULcezPfM2AUbuuicNBBKB/Gw1VE1GXuoxXx85w7uYX/u', '192.168.0.1', null, null, current_date, null, now());
+select setval(pg_get_serial_sequence('client', 'id'), (select max(id) from client)); --fix primary key sequence
+
+
+drop table if exists module cascade;
+create table module (
+  id serial primary key,
+  name varchar(200),
+  status char(1),
+  sort int
+);
+create unique index on module(name);
+
+insert into module (id, name, status, sort) values (1, 'Case Studies', 'A', 1);
+insert into module (id, name, status, sort) values (2, 'Fatigue', 'A', 2);
+insert into module (id, name, status, sort) values (3, 'Iron', 'A', 3);
+insert into module (id, name, status, sort) values (4, 'Thyroid', 'A', 4);
+insert into module (id, name, status, sort) values (5, 'Iodine', 'A', 5);
+insert into module (id, name, status, sort) values (6, 'Parathyroid', 'A', 6);
+insert into module (id, name, status, sort) values (7, 'Glucose', 'A', 7);
+insert into module (id, name, status, sort) values (8, 'Weight loss', 'A', 8);
+insert into module (id, name, status, sort) values (9, 'Adrenals/Cortisol', 'A', 9);
+insert into module (id, name, status, sort) values (10, 'Liver', 'A', 10);
+insert into module (id, name, status, sort) values (11, 'Gallbladder', 'A', 11);
+insert into module (id, name, status, sort) values (12, 'Diet/Nutrition', 'A', 12);
+insert into module (id, name, status, sort) values (13, 'Micronutrients', 'A', 13);
+insert into module (id, name, status, sort) values (14, 'Sleep', 'A', 14);
+insert into module (id, name, status, sort) values (15, 'Toxicology', 'A', 15);
+insert into module (id, name, status, sort) values (16, 'Cardiovascular', 'A', 16);
+insert into module (id, name, status, sort) values (17, 'Male Health', 'A', 17);
+insert into module (id, name, status, sort) values (18, 'Female Health', 'A', 18);
+insert into module (id, name, status, sort) values (19, 'Autoimmunity', 'A', 19);
+insert into module (id, name, status, sort) values (20, 'Neurology', 'A', 20);
+insert into module (id, name, status, sort) values (21, 'Gastroenterology', 'A', 21);
+insert into module (id, name, status, sort) values (22, 'Microbiome', 'A', 22);
+insert into module (id, name, status, sort) values (23, 'GI-MAP', 'A', 23);
+insert into module (id, name, status, sort) values (24, 'Skin', 'A', 24);
+insert into module (id, name, status, sort) values (25, 'Misc', 'A', 25);
+select setval(pg_get_serial_sequence('module', 'id'), (select max(id) from module)); --fix primary key sequence
+
+
+
+drop table if exists class cascade;
+create table class (
+  id serial primary key,
+  title varchar(200),
+  title_original varchar(200),
+  url varchar(200),
+  type char(1), --V=Video, P=PDF
+  length int,
+  module_id int, --fk
+  status char(1),
+  sort int,
+  highlight varchar(10000),
+  notes varchar(1000),
+  created timestamp
+);
+alter table class add foreign key (module_id) references module(id);
+create unique index on class(title);
+create unique index on class(title_original);
+create unique index on class(url);
+
+--PDF
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('GI MAP Interpretive Guide.pdf'
+, null
+, 'https://www.diagnosticsolutionslab.com/sites/default/files/u16/GI-MAP-Interpretive-Guide.pdf'
+, 'P' --type
+, null --length
+, 23 --module_id
+, 'A' --status
+, 10 --sort
+, null
+, null
+, now()
+);
+
+--Videos
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Testosterone - Dr Hyman and Dr Papanicolaou'
+, 'What Lowers Testosterone And What Can You Do About It?'
+, 'https://www.youtube.com/watch?v=m6ooGW_o4ow&t=16s'
+, 'V' --type
+, 60 --length
+, 17 --module_id
+, 'A' --status
+, 1 --sort
+, $$Dr. Mark Hyman speaks with Dr. George Papanicolaou
+In this video, we will focus on men with low testosterone
+--andropause
+Symptoms of low testosterone are fatigue, muscle loss, low sex drive
+Additional symptoms mentioned are brain fog, lack of motivation, erectile dysfunction
+Conventional medicine will diagnose low testosterone at 250-300
+Normal testosterone levels in young males are 600-1000
+If a male has testosterone of 400 the conventional doctor will say that is normal
+Improving lifestyle can increase testosterone to 600
+Stress
+Diet
+High insulin can cause the deposition of belly fat
+Too much estrogen can cause belly fat
+Estrogen can drive sex hormone-binding globulin
+Hypothyroidism can cause low T and low sex drive
+Lifestyle must be addressed before supplementing with T
+Sleep, stress, exercise, and diet must come first
+Meditation
+--14-15 an ad try to remove it
+A case story of a recent patient who was already taking testosterone
+I performed a Dutch hormone test, found the patient was an over aromatizer, and his SHBG was elevated
+I prescribed anastrozole, an aromatase inhibitor
+I also prescribed a peptide CJC-1297 [CJC-1295] and ipamorelin to help lose fat
+Mark Hyman uses natural ways to prevent excess estrogen such as diindolylmethane
+In this case, Dr. Papanicolaou used anastrozole instead of diindolylmethane to get faster results
+Diindolylmethane is a compound derived from the digestion of indole-3-carbinol, found in cruciferous vegetables such as broccoli
+Calcium glucarate can also be used to increase the metabolism of estrogen
+Men can regain a huge amount of vitality with T supplementation
+Always monitor estrogen and sex hormone binding globulin with people on T s
+--biotin
+--DHT and prostate
+--there are natural ways to affect DHT
+--cancer
+--hair loss
+--dutch measures DHT so we can make adjustments
+Propecia has side effects
+There are natural versions of Propecia like Saw Palmetto which is an herb to mitigate the conversion
+--women hormones
+--Mark Hyman suggests but does not say use Dutch for women also
+--dr P says dutch shows cortisol adrenals stress
+I replace his testosterone but if I don't reverse his stress I am not doing that man of service
+Meditation
+Adaptogens are herbs that help the adrenals function better 
+Lifestyle must come first before supplementing hormones
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Erectile Dysfunction - Dr Hyman and Dr Papanicolaou'
+, 'How To Treat Erectile Dysfunction Without The Little Blue Pill'
+, 'https://www.youtube.com/watch?v=dOCtDMfqkdc&t=22s'
+, 'V' --type
+, 60 --length
+, 17 --module_id
+, 'A' --status
+, 2 --sort
+, $$Dr. Mark Hyman speaks with Dr. George Papanicolaou
+10% of men under the age of 40 have erectile dysfunction
+There is a 60% chance of erectile dysfunction by the time you're 70
+Endothelial dysfunction is a key part of what causes erectile dysfunction 
+That means there is a hardening of the arteries in the penis
+Viagra only addresses the end problem but ignores all underlying issues
+Insulin resistance is connected to endothelial dysfunction 
+When the endothelial cells aren't working then the nitrous oxide is not going to have an impact
+The first sign of heart disease is probably having trouble getting an erection
+--alcohol
+--revascularization is like angioplasty for the penis
+--T might help ED
+Sleep apnea, excess alcohol, diabetes, stress will affect T
+Pre-diabetes and insulin resistance is the biggest reason for low T
+The more belly fat you have the lower your testosterone
+Alcohol is a problem because it increases a hormone converter called aromatase which is an enzyme that converts testosterone into estrogen 
+--Eat good healthy fat
+--17 ad
+--dr p gets the patients timeline
+--dr p the matrix
+--mercury lead impacting endothelial mitochondrial function
+First I focus on their diet, an inflammatory diet because anything that causes inflammation will damage the blood vessel lyings and can affect blood flow 
+Processed food, fried foods, lack of protective foods
+Next, I look at insulin resistance and pre-diabetes
+Must test oral glucose tolerance with insulin
+--I look at adrenal stress on test
+--we use NMR, oxidative LDL, CRP
+--we do 4 point cortisol test
+--I think he does a dutch test
+--some men are natural aromitizers
+A case story of a patient, a fasting glucose tolerance test showed insulin at 40 at 1 and 2 hours
+--A1C was 5.6, 5.8 is prediabetic, I told the patient you are pre-diabetic
+When patients hear the word insulin resistance they don't know what that is, but when they hear the word diabetes they know what that is
+I purposely say pre-diabetic and all of a sudden I have leverage
+We take out sugars, processed foods, gluten, dairy, alcohol, soy
+I want you to have established a good stress management program I'll get even more specific and say I want you meditating
+Add fish oil, vitamin D, adrenal adaptogens
+After 9 months the patient was much better
+--T came up to 450
+Exercise and HIIT will improve T
+Muscle mass helps improve carbohydrate metabolism
+--T helps make muscle gain which then...
+Ultrasound shock wave therapy [GAINSWave] can break down the stiffness of the arteries in the penis that are causing the decreased blood flow
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Women’s Hormonal Imbalances'
+, 'The Underlying Causes And Solutions For Women’s Hormonal Imbalances'
+, 'https://www.youtube.com/watch?v=73kjIRmlhwc&t=14s'
+, 'V' --type
+, 60 --length
+, 18 --module_id
+, 'A' --status
+, 1 --sort
+, $$Birth control pills have side effects, increase breast cancer risk if long term
+Perimenopause is 6 to 10 years before menopause, and hormones are not as regular
+Less progesterone is produced
+High levels of estrogen can cause clots, heavy bleeding, PMS, mood issues, sleep issues, and migraines
+Progesterone is a calming hormone and helps women sleep better
+--Insulin, estrogen, adrenal, thyroid
+--Adrenals produce cortisol...
+Higher cortisol results in lower progesterone
+Insulin resistance can cause a person to gain more weight around the belly
+Gaining belly weight can increase aromatase enzymes which makes more estrogen and throws us out of balance 
+Alcohol is a liver toxin and impedes the body's ability to metabolize estrogen
+Even one drink of alcohol per day is linked to an increased risk of breast cancer 
+Symptoms are feeling irritable, heavier periods, sleep issues, hot flashes
+--13:39-14:35 ad
+--flax soy broccoli
+--sulforaphane
+Whole unprocessed soy foods are healthy
+balancing your blood sugar by making
+Every meal should have healthy fat, fiber, and protein, this will prevent spikes in blood sugar and insulin
+We can prescribe progesterone to help with sleep, but lifestyle comes first
+In a case study of a person with low progesterone, we supported her progesterone production by supporting her adrenal gland with good self-care
+We lowered her estrogen levels with the cruciferous vegetables and folate-rich foods
+We had the patient stop caffeine consumption
+--checked her she had these weird genes that made it hard for her to metabolize estrogen
+--indole-3 carbinol
+--3,000 micrograms of methylfolate
+--dysplasia in the cervix 
+Sleep and rest can help hormones rebalance themselves 
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Postmenopausal Hormones'
+, 'Postmenopausal Hormones: Helpful Or Harmful?'
+, 'https://www.youtube.com/watch?v=mcZqNNVHcdk&t=75s'
+, 'V' --type
+, 60 --length
+, 18 --module_id
+, 'A' --status
+, 2 --sort
+, $$Some women in perimenopause will have irritability, hot flashes, night sweats, sleep issues, migraines, heavy bleeding, clots
+Lifestyle makes a huge difference
+--12 ad
+Clostridia in the gut can unwrap estrogen and reabsorb it 
+Hormones that are bioidentical, identical to what the own body makes, are safer
+Oral estrogens are more pro-inflammatory, they go through the liver
+--Topical estrogen would be safer
+Giving extra estrogen is not without risk
+--want to lower estrogen to reduce cancer
+--generic forms hard to get the data
+Estrogen I typically don't give orally because of that increased risk of inflammation and blood clots 
+I usually give estrogen transdermally
+The main reasons we're using estrogen is for hot flashes sometimes sleep and bone density
+We'll use vaginal estrogen for vaginal dryness, it has a low rate of systemic absorption 
+I'll use progesterone orally if we're a woman's struggling with sleep
+Can use it through the skin also that can be used both to regulate periods if somebody's still in perimenopause, for anxiety and sleep
+If a woman still has her uterus it's necessary if you are going to give estrogen that you give progesterone along with it 
+I've seen progesterone work incredibly for pre-menstrual migraines, sleep issues, anxiety, heavy periods, cramping, heavy bleeding
+T can help us use less estrogen
+T helps libido and vaginal dryness
+We give a transdermal hormone therapy of an estrogen, progesterone, and testosterone combination
+Give diindolylmethane, also known as DIM [from cruciferous vegetables], and lignans from flax seeds
+I prefer topical hormones
+I am comfortable giving a patient long-term vaginal estrogen and a little topical clitoral testosterone 
+Case study of a woman age 50 with sweats and sleep issues
+We started with lifestyle, gave her magnesium and black cohosh, this was helpful but not helpful enough
+100 mg progesterone per night helped her sleep
+We don't keep people on hormones for a long time
+Another case study female age 53 postmenopausal, thin body
+Mother had broken her hip
+Had no family history of breast cancer
+Prescribed estrogen progesterone testosterone transdermally
+$$
+, null
+, now()
+);
+
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Heartburn And Reflux'
+, 'Getting To The Root Of And Getting Rid Of Heartburn And Reflux'
+, 'https://www.youtube.com/watch?v=nFmDXtXHKos'
+, 'V' --type
+, 60 --length
+, 21 --module_id
+, 'A' --status
+, 5 --sort
+, $$Heartburn is not about too much acid
+The body needs and wants to have acid in the stomach because acid is needed to break down food
+Heartburn can be caused by a lack of acid
+Gastrin is produced by the body to tell the body to produce more acid
+Heartburn medications have serious long term consequences
+--Jerry or Gerard Mullin, book Integrative Gastroenterology
+Reflux may be caused by certain foods such as alcohol, citrus, spicy foods, coffee
+Gastritis may be caused by coffee
+Being overweight can cause food to move upwards
+It is not an acid problem
+Magnesium deficiency, food sensitivities, gluten causing reflux, zinc deficiency
+H pylori may cause ulcers, heartburn, and reflux
+If you have H pylori then treat it
+--14 ad
+A case study of a patient, he had GI symptoms and neuropathy 
+When a person has heartburn and they are taking a calcium channel blocker then I have them stop taking it
+--you've got to treat about 500 patients with elevated cholesterol to prevent one heart attack
+--Statins associated with neuropathy
+--Heart disease is about inflammation
+The patient was the hard-working type, he would often skip lunch, have late dinners, overeat because he was so hungry and then he developed heartburn
+I checked patients B12 and methylmalonic acid
+Methylmalonic acid will increase before B12 deficiency
+This patients lab tests showed B12 deficiency
+The heartburn drug caused the B12 deficiency, and the B12 deficiency caused the nerve damage 
+I changed the patient's blood pressure medication so his low esophageal sphincter started to work again
+In six months the patient resolved every symptom
+--I wrote a textbook chapter years ago for a functional medicine integrated medicine textbook on reflux 
+--A nutritionist I know Katie mora who wrote a nice ebook about heartburn and reflux 
+A heartburn patient does not need a big extensive workup 
+You may refer the patient to get an EGD (upper GI endoscopy) to see if they have a hiatal hernia
+I test for stomach acid by testing gastrin levels
+Often I also combine that with anti-parietal cell antibodies
+Parietal cells make stomach acid, some people have autoimmunity in that they are attacking the stomach acid-producing cells
+The patient can supplement with apple cider vinegar and hydrochloric acid supplements
+--genes h pylori HCL
+Try to avoid fried foods, spicy foods, tomato-based foods, citrus foods, too much coffee, chocolate, stop eating late
+One can't just stop acid-blocking medications, it has to be tapered slowly
+--H2 blocker...
+If high gastrin then this will be a slow process
+--cut the dose in half
+DGL is de-deglycerized licorice and they're like chewable tablets that are like natural TUMS antacids
+--glutamine...
+--deep-fried foods...
+--PPIs 6-8 weeks no problems
+$$
+, null
+, now()
+);
+
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('B12 Decreasing - Dr Chris Masterjohn'
+, $$Why Is My B12 Going Down When I'm Eating More Liver?$$
+, 'https://youtu.be/gGhgEe-g0YY?t=110'
+, 'V' --type
+, 60 --length
+, 13 --module_id
+, 'A' --status
+, 2 --sort
+, $$When labs show low B12 despite adequate intake that is probably because the person is not absorbing it well.
+You can absorb 3 mcg B12 at one time, that is one ounce of liver.
+Passive absorption is weaker than active absorption
+The intestines reset every few hours at which time a person can get another dose
+Do not eat liver at every meal, can overdose copper and vitamin A
+Serum B12 15% up or down compared to last labs is normal
+The most infamous b12 absorption issue is pernicious anemia
+Pernicious anemia is an autoimmune attack on cells in the stomach that make intrinsic factor, which is a protein needed to absorb B12
+The rate of pernicious anemia in society is 0.1%, but after age 60 then 1.9%
+15%-40% of older adults lower absorption from subclinical gastritis
+H Pylori can cause this, 50% have this, even if no symptoms
+Do not lay down after taking medications, can harm the stomach
+The RDA for adults is 2.4 μg/day of vitamin B12
+Take 40 mcg/day dose if impaired absorption, but passive absorption intact
+600 mcg/day should cover the needs for most but not all with pernicious anemia
+1000mcg/day if covering the needs of all with PA
+1000mcg to 3000 is probably not harmful
+Better to not take a higher dose if not needed
+High doses of micronutrients that are not needed are possibly not good for the microbiome
+Lab level of B12 400 is the minimum we should have
+Measure methylmalonic acid to verify
+If no absorption problem then beef liver capsules are ok
+B12 injections not needed, oral B12 is effective, even for pernicious anemia
+If vegan not confident in nori seaweed or mushroom are adequate, must test to monitor
+If serum is high B12 and supplementing B12 then it that is ok
+If serum is high B12 and not supplementing then check blood liver and kidney health
+I do not recommend Cyanocobalamin B12
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Insulin Resistance - Dr. Jason Fung'
+, 'Dr. Jason Fung - A New Paradigm of Insulin Resistance'
+, 'https://www.youtube.com/watch?v=eUiSCEBGxXk&t=19s'
+, 'V' --type
+, 60 --length
+, 7 --module_id
+, 'A' --status
+, 1 --sort
+, $$Dr. Jason Fung completed medical school at the University of Toronto, finished a nephrology fellowship at the University of California, Los Angeles at the Cedars-Sinai hospital.
+Insulin resistance is the heart of type 2 diabetes
+Type 2 diabetes/Insulin resistance causes most or is associated with most of the diseases such as heart disease, cancer, Alzheimer's disease, etc.
+Diabetes is a disease with two phases
+First, there is a long slow phase where the blood glucose rises very slowly and that's where the insulin resistance is rising 
+During this time the body produces enough insulin to overcome this resistance so the blood glucose stays relatively normal
+This is called compensatory hyperinsulinemia
+Eventually, the pancreas doesn't produce sufficient insulin, the blood glucose goes up, type 2 diabetes is diagnosed
+The diagnosis of type 2 diabetes is late in the game
+Up to 14 years before the diagnosis of type 2 diabetes there is rising insulin resistance
+--219 great graph
+Fatty Liver precedes type 2 diabetes
+ALT is a marker of liver damage
+Fatty liver is the key to understanding insulin resistance 
+Excess dietary starch, glucose, and fructose, not fat, can cause fatty liver
+Fructose is metabolized solely in the liver which turns it into fat
+Weight loss surgery can cure diabetes
+Fasting can give the same effect as weight loss surgery
+As the pancreatic fat decreases, the beta cells recover
+The idea that type 2 diabetes is chronic and irreversible is completely untrue
+Insulin resistance is an overflow paradigm
+Insulin is the wrong treatment
+Mediations to lower blood glucose do not make people healthier
+If your body has too much sugar then do not put more in
+How to reverse type 2 diabetes:
+    1. Don't put more in - a low carb diet
+    2. Burn it off - Intermittent fasting
+--SGLT2
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Microbiome Overview - Lucy Mailing PhD'
+, 'Lucy Mailing - Modulating the gut microbiome for health: evidence-based testing and therapeutic'
+, 'https://www.youtube.com/watch?v=UA8B2a8mQSU&t=63s'
+, 'V' --type
+, 60 --length
+, 21 --module_id
+, 'A' --status
+, 3 --sort
+, $$--skip start she mentions kresser
+1:44 the microbiota is strongly implicated in many disease states
+The loss of diversity in the microbiota is driving disease
+Antibiotics can devastate the microbiome
+Culture based stool tests are not accurate.  
+Only a small fraction of microbes in the gut can be cultured
+DNA based stool tests are superior to culture based tests
+qPCR is used by GI MAP
+Culture based tests captured less then 4% of the gut microbiota
+--I use GI MAP and uBiome
+A high fat diet is not bad for the microbiota
+Ketone bodies can make up for low butyrate
+--No evidence that a well designed keto diet...
+Exercise improves the microbiota, especially in lean persons
+Herbal anto microbials have potential to cause harm
+In vitro, grape seed extract was worse them the antibiotic clindamycin
+Grape seed extract appeared to have greater inhibition of beneficial bacteria
+Genus and species are not enough information, we need to know the strain
+Most probiotics do not state strain information
+--Fermented foods cant be relied on for therapeutic effects
+--Most probiotics do not permanently colonize the gut
+--A recent study showed probiotics delayed
+--butyrate
+Several studies show in some people resistant starch decreases butyrate production
+--promotes her site at the end
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Iron Overload'
+, 'AHS12 Chris Kresser, MS, LAc — Iron Behaving Badly: The Role of Iron Overload in Metabolic Disease'
+, 'https://www.youtube.com/watch?v=qrdy5IcCLis'
+, 'V' --type
+, 60 --length
+, 3 --module_id
+, 'A' --status
+, 20 --sort
+, $$A case study of a person with fatigue, joint pain, brain fog, low libido
+The blood panel showed the patient had iron overload
+The patient had a single copy of the genetic variation that causes hereditary hemochromatosis
+Hereditary hemochromatosis affects 1 in 200 people
+Even mild iron overload is associated with an increased risk of disease and death 
+Iron saturation predicts mortality
+Many genetic variations that can cause iron overload
+A single copy of the genetic variation that causes hereditary hemochromatosis can cause iron overload
+Hemochromatosis is associated with a long list of diseases
+Phlebotomy can reduce A1C, blood pressure, and gout
+Premenopausal women do not get iron overload due to menstruation
+Transferrin saturation should be under 45%
+TIBC is an inverse marker that should be 250 to 450
+--UIBC better, I hope I can delete this statement
+Ferritin should be under 200 in men and under 100 in women
+Ferritin is an acute-phase reactant that indicates inflammation
+Soluble Transferrin Receptor can determine if elevated ferritin is due to iron overload or inflammation
+If the patient is negative for genetic mutations but has high iron, that is still a risk
+Heterozygous carriers are also at risk
+If the patient has high iron then recommend therapeutic phlebotomy to reduce iron
+Be cautious with iron supplements
+--Men and postmenopausal women should donate blood
+Continue blood donations or therapeutic phlebotomy until transferrin saturation is under 45%
+Blood donation is not allowed if hemoglobin < 12.5
+--remove the section at the end about chelation
+--promotes his old website, hope I can delete this
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Microbiome Overview - Erica Sonnenburg Ph.D.'
+, 'Diet as a Lever to Improve Your Microbiome and Health'
+, 'https://www.youtube.com/watch?v=s3MZjgtvEQ8'
+, 'V' --type
+, 60 --length
+, 21 --module_id
+, 'A' --status
+, 1 --sort
+, $$Erica Sonnenburg Ph.D. is a Senior Research Scientist at Stanford University School of Medicine
+Humans are a walking ecosystem, and 100 trillion microbes live in our intestines
+Our microbiome affects our metabolism, immune system, whether or not we have seasonal allergies, and central nervous system diseases
+The microbiome in the colon relies on complex carbohydrates for food.  The bacteria consume the complex carbohydrates which excrete metabolites that reach our circulation.
+We eat insufficient complex carbohydrates
+/*Sucrose, starch, and glucose are absorbed early in our digestion which can cause health problems*/
+A starving microbiome eats you
+Our microbiome is missing diversity relative to traditional populations
+A higher fiber diet improves the microbiome for most people
+Consuming fermented foods improves microbiome diversity and decreases inflammation
+Consuming probiotics did not improve microbiome diversity or decrease inflammation for most people
+Consuming probiotics had some benefit if a person consumed more plants
+Excessive sanitation might not be good for our microbiome
+/*statins affect the microbiome*/
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Microbiome Overview - Claire Fraser Ph.D.'
+, 'Claire Fraser - The Human Gut Microbiome in Health and Disease'
+, 'https://www.youtube.com/watch?v=YciV60j-PXQ'
+, 'V' --type
+, 60 --length
+, 21 --module_id
+, 'A' --status
+, 2 --sort
+, $$Claire M. Fraser Ph.D. is Director of the Institute for Genome Sciences at the University of Maryland School of Medicine
+The bacteria in our microbiome are essential to human health and aid in many biological processes
+The butyrate producing bactera in the large iintestine are critically important for health
+We have to feed them dieetary fiber
+They produce metabolites called short chain fatty acids such as Butyrate which is a wonder drug
+Short chain fatty acids have potent antinflamatry properties
+We have to feed them fiber.  If we do not feed them fiber then they will feed on us.
+/*26 red meat causes heart disease - remove this?*/
+Antibiotics can harm microbiome
+Changes in microbiome is associated with many diseases
+For some people the microbiome will not fully recover after antibiotics
+Antibiotics are given for medical reasons, and also present in our food supply
+A hypothesis is that antibiotics might cause weight gain, but this is not yet proven
+The intestines are linked to the brain
+51 Fecal transplants show promise for c dificile
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Iron Deficiency — John Adamson MD'
+, 'Iron Deficiency — More Than Just Anemia'
+, 'https://www.youtube.com/watch?v=e2bRH1XX2GA'
+, 'V' --type
+, 60 --length
+, 3 --module_id
+, 'A' --status
+, 1 --sort
+, $$John Adamson MD is a board-certified hematologist with a special focus in red blood cell and iron metabolism
+Iron deficiency is the most common deficiency workd-wide
+3% of adult males and 12% adult females in the US are iron deficient
+Females are much more vulnerable because of monthly menstrual blood loss
+Stages in the development of iron deficiency anemia:
+    1. Negative iron balance (less iron is coming in than is leaving)
+    2. Fall in iron stores (serum ferritin falls to < 12-15 ng/mL)
+    3. Only then is there a fall in serum iron and transferrin saturation to < 15%
+    4. Appearance of hypochromic reticulocytes
+    5. Hemoglobin falls /*Hemoglobin is a protein in your red blood cells that carries oxygen to your body's organs and tissues and transports carbon dioxide from your organs and tissues back to your lungs.*/
+    6. MCV falls /*MCV is the average size of your red blood cells*/
+Inadequate absorption can include:
+    Poor biovailability
+    Antacids or high gastric pH
+    Dietary bran, phytates, competition from other metals
+    Loss of absorbtive enterocytes
+    Celiac disease
+    Inflamitory bowel disease
+Iron deficiency is often a sign of underlying pathology
+Iron deficiency in post menoposul woman or adult male is due to GI blood loss until proven otherwise
+That means it is colon cancer until ruled out.  To not know this is malpractice.
+Iron deficiency is not necessarily anemia
+Iron deficiency is associated with fatigue in non-anemic individuals
+There was a trial of women with fatigue, not anemic, ferritin < 50, hemoglobin average 12.4
+    There was no benefit
+    But those women with ferritin 15 or less then there was a significant benefit
+Fatigue is due to low iron, even in the absence of anemica
+Patient history may include 
+    Restless legs
+    Wounds slow to heal
+    Pagophagia (compulsive ice chewing) and forms of pica
+    Painful tongue
+    Brittle hair and hair loss
+    Cracking at corners of mouth
+    Spooning nails
+Workup
+    Serum iron
+    Total iron binding capacity (TIBC is a functional test for transferrin)  Do not order transferrin.
+    Ferritin
+    Soluble transferrin receptor (sTfR)
+Transferrin is the major iron transport protein
+/*Transferrin is minimally affected by acute inflamation, but with time the serum transferrin...*/
+Transferrin saturation is the serum iron divided by the TIBC
+Transferrin saturation can change because of inflamation
+Functional iron deficiency occurs when the percent transferrin saturation falls to 15-20%, even if patient has iron stores
+Can be confusing to physician if patient has both inflation and iron deficiency
+By itself, transferrin saturation is not diagnostic of iron deficiency anemia because it takes a constelation of lab findings
+Ferritin is produced mostly by liver cells, functions as an iron storage protein, and has no transport function
+A patient with iron overload due to hemochromatosis can be treated with therapeutic phlebotomies
+If serum iron < 12-15 ng/mL that is iron deficiency, which is different than anemia
+If serum iron 15 - 200 ng/mL possible iron deficiency depending on clinical circumstances
+Serum iron is an acute phase reactant, might not reflect iron stores, so look at all data and clinical history
+Treatment of iron deficiency assumes the cause is known
+Oral iron supplements will often suffice
+Parenteral iron required if:
+    Patient not compliant
+    GI side effects (seen in 15-20% of patients)
+    Patient cannot absorb oral iron
+    Rapid reversal is required
+    Ongoing losses exceed absorptive capacity
+Meat is the only food that can provide significant iron
+Iron in meat is heme iron, which is much more efficiently aborbed
+Oral replacement guidelines:
+    Try to give 100mg of elemental iron daily
+    Take in between meals on an empty stomach
+    Less expensive forms generally work as well as more expensive forms
+    Newer forms such as Proferrin have absorbtive advantages but are more expensive
+Iron is absorbed mostly at the first part of the small intestines /*so rectal supository I assume wont work*/
+Iron absorbtion can be tested with an oral iron absorption test
+    Give two tablets of iron on an empty stomach or with orange/lemon juice
+    Measure serum iron at baseline and at 30, 60, 90, 120 and 180 minutes
+    Serum iron should increase by at least 100 mcg/dL
+A 32 year old woman had chronic fatigue and mild anemia, no GI symptons
+    An oral iron absorbtin test showed she could not absorb iron
+    Based on that finding alone she underwent an upper endoscopy and small bowel biopsy which confirmed celiac disease
+There are five forms of FDA approved parental iron
+Safety profiles are good for the newer IV iron but none are 100% risk free
+Goals of Treatment
+    Correct the anemia
+    Provide enough iron to raise iron stores (monitored by serum ferritin)
+    Follow the serum ferritin to assess iron balance
+    Give enough additional iron to prevent recurrent iron deficiency
+When patient is told their hemoglobin is normal but continue oral iron 3-4 months the patient often does not comply
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('GI-MAP Overview'
+, 'GI-MAP Overview'
+, 'www.youtube.com/watch?v=bdoAYLB2FHA'
+, 'V' --type
+, 60 --length
+, 23 --module_id
+, 'A' --status
+, 1 --sort
+, $$The symbol dl means detection limit
+The number 6.4 e2 is an exponential notation for 640
+Pathogens listed more than one times show virulence factors
+Giardia can cause dysbiosis in the other part of the test
+Helicobactor pylori is common, asymptomatic, risk factor for many conditions
+Helicobactor pylori can cause low stomach acid
+Low stomach acid can increase the risk for dysbiosis and poor digestion
+Virulence factors can increase the potential for more serious consequences
+Test reports if genes for virulence factors are detected, not if they are expressed
+Opportunistic Bacteria cause dysbiosis
+Fungi/Yeast can come from the environment and might be just passing through
+Regarding protozoa, there is controversy whether they cause symptoms
+Elastase-1 is a well-established marker for pancreatic insufficiency, an enzyme that breaks down proteins
+Elastase-1 is often low in conjunction with detection with H Pylori, so this is related to hypochlorhydria or SIBO
+Steatocrit is a measure of fat malabsorption.  Can be caused by low lipase.
+Steatocrit high can be caused by insufficient bile acids which digest fat
+Often Elastase is low so pancreatic insufficiency is an issue
+SigA (secretory immunoglobulin a) is the most prominent form of immunoglobin relasead into the intestinal mucosa
+Anti-gliadin SigA can cross-react with non gluten foods
+Calprotectin is associated with inflammatory bowel disease
+b-Glucuronidase is a marker for dysbiosis
+Zonulin is a well-recognized marker for intestinal permeability
+Antibiotic Resistance Genes can help determine the direction for therapy
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('GI-MAP Overview II'
+, 'Implementing The GI MAP Stool Testing in Clinical Practice'
+, 'https://www.youtube.com/watch?v=NwD3lPO7W38&t=123s'
+, 'V' --type
+, 60 --length
+, 23 --module_id
+, 'A' --status
+, 2 --sort
+, $$Alterations in the GI microbiota can cause disease
+11:10 A list of disorders associated with intestinal dysbiosys and intestinal permeability
+15:44 Conventional medicione and gastroenterology uses stool testing to look only for a small number of overt pathogans that cause diareaha or signifcant GI symptoms.  In functional medicine we look at entire microbiotoa.
+17:30 Stool testing started decades ago with culture based tests which are limited to pathogens that can be grown on a plate.
+23:30 Molecular testing is superior to culture testing because one can look at entire microbiota using DNA of the organism
+Molecular testing is superior because it does not need the organism to be alive or viable to be detected
+Our molecular testing uses Luminex equipment 
+/*uBiome is not a clinical test, looks at...  not for clinicians*/
+28:00 page 1 lists pathogens, the cut off points were established by FDA
+29:55 H Pylori is a quasi pathogen, especially if producing virulence factors
+30:00 page 2 lists normal flora, can impact with probiotic and prebiotic therapy
+Opportunistic bacteria are ok at low levels
+Elastase-1 shows pancreatic enzyme output
+33:20 Elastase-1 is not in digestive supplements so person does not need to stop supplements for this test
+Steatocrit shows fatty stool
+Old culture plating technology could not assess the anerobic bascteria
+34:55 Secretory IgA is the primary immunoglobulin in the intestinal mucosa. /*took line from https://www.diagnosticsolutionslab.com/sites/default/files/u16/GI-MAP-Interpretive-Guide.pdf*/
+Anti-gliadin SigA can indicate an immune response in the intestines to gluten in the diet.
+Anti-gliadin SigA is not a biomarker for celiac disease, it shows non celiac gluten sensitivity
+Calprotectin can differentiate between IBS and IBD
+b-Glucuronidase shows interference with Phase II detoxification involving glucuronidation that can result in estrogen dominence /*took line from https://www.diagnosticsolutionslab.com/sites/default/files/u16/GI-MAP-Interpretive-Guide.pdf*/
+/*Antibiotic Resistance Genes*/
+38:20 Shows a chart with microbes that are associated with specific diseases /*Important*/
+/*41:00 Molecular mimicry*/
+43:20 Rheumatoid Arthritis is associated with cetain pathogens
+/*Designs for Health, UT Synergy*/
+/*Silvercillin*/
+53:00 Crohn's disease is associated with cetain pathogens
+/*Thyroid disease is associated with Yersinia...*/
+/*Designs for Health, GI Microb-X*/
+We tend to not use antibiotics unless the person has a fulminant infection
+If antibiotics are necessary we use antibiotics that work locally in the GI tract
+//antimicrobials better because go after bad bacteria
+Oil of Oregano is antimicrobial
+//Silvercillin is stronger
+Monolaurin-Avail is antiviral
+//Probiotic Synergy is a probiotic
+//Probiotic Supreme DF is higher potency, DF means dairy free
+//Probiophage DF, has bacteriaphages, killers of specific bacteria like ecoli, good for sibo, UTIs, IBD
+//FloraMyces is sachromyces boulardi
+//seems to say leaky gut is real
+//GI-Revive, capsules are easier to take, glutamine is good but the botanicals are the best part
+//n acetl glucosomine, in an MS trial
+//1:08:40 shows a chart connecting GIMAP to Designs for Health products
+//a paper he wrote on the disconnect in modern medicine
+//case studies
+Antimicrobials are best taken away from meals
+//being in foreign waters or any lakes is a risk for disease
+//for retest use a washout period before retest
+//you can follow up with small part of GIMAP
+1:22:00 Oppotunistic bacteria are benign if in low levels, so do not treat
+The necessity to treat goes way up if the organism is associated with a disease the person has or in the persons family history
+//ok to use many products at the same time
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Common Dysbiosis Patterns'
+, 'Understanding Common Dysbiosis Patterns with GI-MAP'
+, 'https://www.youtube.com/watch?v=aEjuIX8Dqwg'
+, 'V' --type
+, 60 --length
+, 23 --module_id
+, 'A' --status
+, 3 --sort
+, $$Immunoglobulin A (IgA) promotes health by regulating the composition of gut microbiota
+The first common pattern is insufficiency dysbiosis
+90% of the beneficial bacteria are Bacteroidetes and Firmicutes
+The second common pattern is inflammatory dysbiosis
+Balance in the microbiome does not mean the complete elimination of all harmful microbes
+balance means there are enough beneficial microbes to keep the harmful microbes in check
+A small number of harmful microbes can have some beneficial functions
+Certain pathogens should be completely gone, but the opportunists are not a problem at low levels
+Bacteroides species prevent the colonization of harmful microbes by producing the short-chain fatty acid propionate
+Primary causes of dysbiosis
+    Pathogens
+    Drugs (antibiotics, PPIs, etc)
+    Poor diet
+    Digestive & immune dysfunction
+    Toxins
+Giardia generally is a harmful microbe, but just because a particular microbe is present, doesn't necessarily mean it is causing a problem.  The effect depends on each person's microbiome.
+--42:00 he says klebsiella is detected but I don't see it
+--Giardia often produce all patterns, digestive problem
+Elastase-1 range states >200 ug/g, the patient value of 302 is not flagged as low but is below optimal of 500
+Steatocrit measure of fat malabsorbtio
+Giardia is known to cause intestinal permeability, so it will be seen with high anti-gliadin IgA
+Zonulin high can be seen with Giardia
+The third common pattern is digestive dysfunction dysbiosis
+This is caused by low stomach acid, insufficient bile acids, poor digestion (pancreatic insufficiency or brush border enzyme deficiency), reduced absorption and altered GI motility.
+Pathogens can be caused by low stomach acid
+H pylori is known to cause hypochlorhydria in most people that have it
+Digestive dysfunction can cause overfeeding of good bacteria so they will be overgrown
+Enterococcus and Streptococcus can overgrow if stomach acid is low
+In the section Phyla Microbiota, Bacteroidetes and Firmicutes can be overgrown can be caused by excess food components that are not digested and absorbed properly.  This can also be associated with SIBO.
+Prevotella copri tends to benefit from undigested carbohydrates
+Can't overemphasize how important optimizing digestion is
+Prebiotics can help promote balance in the microbiome
+Inulin can help promote the butyrate-producing bacteria
+Glucomannan can help promote Bacteroidetes
+If these beneficial bacteria are low then these prebiotic are something to consider
+Probiotics have been shown to be helpful
+Saccharomyces Boulardii has a lot of research behind it for balancing the microbiome
+Colostrum has a lot of research beyond it for low Secretory IgA, promoting intestinal barrier and balancing the microbiome
+SBI Immunoglobins is a nondairy version of immunoglobins
+Glutamine and zinc carnosine can help mucosal gut health and reduce leaky gut
+Polyphenols have been shown in several studies to balance the microbiome
+Polyphenols inhibit pathogenic bacteria and stimulate beneficial bacteria
+Nutritional deficiencies such as zinc can affect the production of stomach acid and other processes
+Vitamin A and D deficiency are well known to have effects at the mucosal barrier
+To increase Firmicutes which are the butyrate producers increase prebiotics such as resistant starch and inulin
+For Bacteroidetes they can do well on starches or glucomannan, increase protein in the diet, improve mucous of the gut lining
+Anti-inflammatory diet and supplements
+Polyphenols are helpful
+If a significant imbalance in the microbiome then antimicrobial might be needed
+Candida is inflammatory
+Th17 cells are inflammatory
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Digestive Insufficiency'
+, 'Digestive Insufficiency, Dysbiosis and Disease - Implications for Personalized Therapies'
+, 'https://www.youtube.com/watch?v=bb_WJ_BUuWE'
+, 'V' --type
+, 60 --length
+, 23 --module_id
+, 'A' --status
+, 4 --sort
+, $$It is well established that chronic H Pylori infections can lead to hypochlorhydria
+Giardia is a pathogen that is well established to contribute to malabsorption
+Hypoacidity and malabsorption contribute to further dysbiosis
+Stomach acid triggers bile acid release, bicarbonate in the small intestine, and digestive enzymes
+Note when Giardia is not flagged as high but is present
+--he mentions guide sheets to download
+Clostridium and Bacteroides are often elevated when digestion is not optimal, especially when stomach acid is not sufficient
+Streptococcus is related to low stomach acid, has been shown in research
+Prevotella copri elevations can come from carbohydrates not fully digested
+In this case, Candida is not flagged high but close to the range
+Candida can come from digestive insufficiency
+Elastase-1 optimal is 500, will not be flagged low
+Giardia is the most prevalent human intestinal parasite in the world
+Giardia is a major cause of diarrhea in travelers
+Giardia can have long term consequences
+Look at Giardia levels in the context of the entire test and patient symptoms
+Giardia can colonize the small intestine
+PPI can result in adverse events
+All macronutrients carb fat and protein if not digested then can have consequences
+--Streptococcus can be high from...
+--secretory IgA low so support with...
+--calprotectin 136 is mod elevated, under the range
+A case study, In Pathogen section, when C. dificile Toxin A or B high, but the patient does not have expected symptoms, this means subclinical infection or person is  a carrier
+C. dificile Toxin A or B means the person can potentially encode the toxins, not actually producing those toxins
+--h pylori...
+Morganella spp. is associated with high histamine
+Klebsiella pneumoniae is a marker for low stomach acid
+--candida...
+--Digestion section markers normal, but that means just pancreas ok, ...
+--missed some notes
+--note calprotectin is not flagged abnormal but close to the range and therefore is important
+--gluten
+--case study does not state the solution
+--elastase-1 refers to the pancreas not small intestines
+Stomach acid kills off not just pathogens from food, should kill off pathogens from the oral cavity --46
+--47:50 a case study of GI issues, turned out to be giardia, not celiac
+--48 h pylori etc not celiac
+--causes of small intestinal atrophy
+Use of PPIs and subsequent risk of celiac disease --51
+--handout at website
+--missed some notes
+--this video was part 1, the next video will be part 2 of this series
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Microbiome and Genomics'
+, 'Pathogens, the Microbiome and Chronic Disease - Gathering Insight with Genomics'
+, 'https://www.youtube.com/watch?v=DEB0ZrIsiiY'
+, 'V' --type
+, 60 --length
+, 23 --module_id
+, 'A' --status
+, 5 --sort
+, $$--this is part 2
+H. pylori can cause low stomach acid, which reduces digestive activity, which can cause dysbiosis
+High Pseudomonas and low Lactobacillus can alter the digestion of gluten which results in inflammation
+Genes with common variants (Alleles) affect carb digestion
+Lactase gene (LCT)
+Sucrose-isomaltase gene (SI)
+Amylase (AMY1 & AMY2)
+SNPs are the most common type of genetic variation
+Lactase SNP affects 75% of the population
+--C>T means C is the most common type, T is the variant
+Sucrose-Isomaltase SNP is strongly associated with IBS
+Screening IBS patients for Sucrose-Isomaltase gene variants holds the potential for improving treatment
+--https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4728165/  //this paper has treatments for GI issues at the end
+--causes of small intestinal atrophy
+--lack of b12 folic acid zinc can cause small intestinal atrophy**
+A large proportion of patients with chronic abdominal pain have deficiencies in disaccharidases
+A 2018 paper questions if SIBO might really be carbohydrate malabsorption
+--gene FUT2
+--skipped a lot
+--Epstein-Barr virus (EBV)
+--VDR and vitamin D
+--skipped a lot
+--second half of the video boring
+--not sure if this video should be included
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('New Markers Recently Added'
+, 'New GI MAP Microbial Markers - What Clinicians Need to Know'
+, 'https://www.youtube.com/watch?v=EFB3ogALiAU'
+, 'V' --type
+, 60 --length
+, 23 --module_id
+, 'A' --status
+, 6 --sort
+, $$Recently the following four markers were added to the GIMAP:
+Faecalibacterium prausnitzii is a major producer of butyrate
+Inulin, FOS, GOS, resistant starch, PHGG (partially hydrolyzed guar gum), pectin, fiber from legumes can feed this bacteria
+Polyphenols such as curcumin, quercetin, resveratrol, and berry extracts can feed this bacteria
+Akkermansia muciniphila inhabits the mucous layer of the colon
+Low levels associated with metabolic disorders
+High levels associated with neurodegenerative conditions --****
+Therefore certain bacteria are not good or bad, it depends on the levels
+--list of stuff that increases it, especially cranberry
+Methanobacteriaceae is a methane producer
+    Low levels IBD, IBS-D
+    Normal levels promote carbohydrate fermentation
+    High levels IBS-C, obesity, anorexia
+Methanobacteriaceae high associated with Periodontitis
+--how to decrease or increase
+Fusobacterium associated with autoimmunity
+--how to decrease or increase
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('The Highs and Lows of the GI MAP'
+, 'The Highs and Lows of the GI MAP'
+, 'https://www.youtube.com/watch?v=8K0ssnaRZfM&t=25s'
+, 'V' --type
+, 60 --length
+, 23 --module_id
+, 'A' --status
+, 7 --sort
+, $$In the Pathogen or Parasite section of the GIMAP, we want those microbes to be below detectable limits
+In the Normal Bacteria section of the GIMAP, we want those microbes to be in the stated range
+People often ask is it beneficial for the microbes in the normal section to be higher than range?  The answer is no.
+An overgrowth of normal bacteria tells us there is digestive insufficiency
+I start by looking at the Phyla Microbiota section because 85-90% of our bacteria fall into one of these two phyla
+Three factors can cause overgrowth
+    Hypochlorhydria (Low stomach acid)
+    Low Pancreatic Output
+    Migrating Motor Complex Disruption
+Stomach acid stimulates pancreatic and biliary bicarb secretion
+Stomach acid stimulates the secretion of hormones that promote the flow of bile and pancreatic juice
+Stomach acid is essential
+--Low stomach acid...
+Low pancreatic output is commonly caused by
+    Hypochlorhydria, I often treat patients with HCL
+    Vegetarian Diet
+    Suppressed pancreatic function
+    Gallstones
+--if elastase < 200
+The migrating motor complex (MMC) propels undigested food residue through the intestines
+The migrating motor complex is interrupted by the ingestion of food
+Fast for 3 hours between meals to allow the MMC the ability to complete
+--Heal gut with butyrate, glutamine, fish oil, fiber
+If Bacteroides Fragilis (normal bacterial flora) is high then:
+    Support decreased digestive capacity
+    Treat constipation
+If Bacteroides Fragilis (normal bacterial flora) is low then:
+    Glutamine
+    Soluble Fiber
+    Remove harmful microbes in the large intestine
+Bifidobacterium Spp if low then supplement with prebiotics and fermented foods
+--Enterococcus Spp
+--Lactobacillus Spp
+--Clostridia
+--Akkermansia muciniphilia
+--Faecalibacterium prausnitzii
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Iron deficency anemia diagnosis - Khan Academy'
+, 'Iron deficency anemia diagnosis | Hematologic System Diseases | NCLEX-RN | Khan Academy'
+, 'https://www.youtube.com/watch?v=2duGAcN0nqw'
+, 'V' --type
+, 60 --length
+, 3 --module_id
+, 'A' --status
+, 10 --sort
+, $$33% iron saturation is normal
+--good up and down arrow chart
+--yes include
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Anemia pathophysiology - Khan Academy'
+, 'Anemia pathophysiology | Hematologic System Diseases | NCLEX-RN | Khan Academy'
+, 'https://www.youtube.com/watch?v=LtlodYLm8fc'
+, 'V' --type
+, 60 --length
+, 3 --module_id
+, 'A' --status
+, 11 --sort
+, $$--has a good chart
+If RBC excess destruction then reticulocytes > 3%
+If RBC underproduction then reticulocytes < 3%
+--yes include
+
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Microcytic, normocytic, and macrocytic anemias - Khan Academy'
+, 'Microcytic, normocytic, and macrocytic anemias | NCLEX-RN | Khan Academy'
+, 'https://www.youtube.com/watch?v=3AMENlm4pOw'
+, 'V' --type
+, 60 --length
+, 3 --module_id
+, 'A' --status
+, 12 --sort
+, $$--an ok video
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Microcytic anemia - Khan Academy'
+, 'Microcytic anemia | Hematologic System Diseases | NCLEX-RN | Khan Academy'
+, 'https://www.youtube.com/watch?v=4_410pxikS0'
+, 'V' --type
+, 60 --length
+, 3 --module_id
+, 'A' --status
+, 13 --sort
+, $$--lack of iron is a cause
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Chronic disease vs iron deficiency anemia - Khan Academy'
+, 'Chronic disease vs iron deficiency anemia | Hematologic System Diseases | NCLEX-RN | Khan Academy'
+, 'https://www.youtube.com/watch?v=tVNRn4srPUI'
+, 'V' --type
+, 60 --length
+, 3 --module_id
+, 'A' --status
+, 14 --sort
+, $$--great up and down arrow chart
+--include
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Anemia of chronic disease - Khan Academy'
+, 'Anemia of chronic disease | Hematologic System Diseases | NCLEX-RN | Khan Academy'
+, 'https://www.youtube.com/watch?v=EkFUb3L040E'
+, 'V' --type
+, 60 --length
+, 3 --module_id
+, 'A' --status
+, 15 --sort
+, $$--ok video, all theory
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Iron deficiency and anemia of chronic disease treatment | NCLEX-RN | Khan Academy'
+, 'Iron deficiency and anemia of chronic disease treatment | NCLEX-RN | Khan Academy'
+, 'https://www.youtube.com/watch?v=X3QUqRd18jc'
+, 'V' --type
+, 60 --length
+, 3 --module_id
+, 'A' --status
+, 16 --sort
+, $$If a person has anemia of chronic disease then they should not take supplemental iron, instead treat the underlying disease
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Vitamin D Dangers - Dr Alan Christianson'
+, 'Dangers of Too Much Vitamin D'
+, 'https://www.youtube.com/watch?v=zrLlaRbYnEM'
+, 'V' --type
+, 60 --length
+, 6 --module_id
+, 'A' --status
+, 2 --sort
+, $$People can get hypercalcemia even from mild excesses of vitamin D
+Case study of a patient that started to feel tired, could not think, put in the hospital for catatonia, could not speak, the brain scan was ok
+Doctors noticed the patient had slightly high calcium
+The most common cause of high calcium is parathyroid disease which can cause all of these symptoms
+The patients parathyroid level was low so that was not the problem
+The patient was taking vitamin D 5k per day, serum vitamin d level was in the 80s
+The patient stopped taking vitamin D and all symptoms resolved
+The ideal range of vitamin D should be 30 to mid-50s
+Vitamin D is a hormone
+Vitamin D serum 80-120 is harmful
+Excessive vitamin D supplementation can take years to cause harm
+Serum 12-30 may be too low
+The serum range of 30 to 50 is good
+Vitamin D < 50 never see problems
+Vitamin D > 70 do see problems
+Vitamin D 25 might be ok
+Low vitamin D is associated with many diseases, but a correlation is not causation
+Low vitamin D causes bone disease, but chronic disease might cause low vitamin D
+Parathyroid glands keep calcium in a proper range
+General fatigue and malaise are the main symptoms because of calciums effect on nerves
+High parathyroid is usually because of a tumor
+High serum calcium means calcium is leaving the bones which can cause osteoporosis
+If adult then calcium should be in 9s
+The conventional lab range of calcium is too wide
+If calcium is over 10 and over age 40 then could be a problem
+If calcium is higher then parathyroid should be lower, they are opposite
+If calcium is higher and parathyroid high normal that could be a problem
+Vitamin D controlled trials we do not see big benefits but might play a role with infections
+It is not clear that a person with normal vitamin D will benefit from supplements
+If deficient might benefit from supplements
+1k to 2k might help if low
+If low calcium then vitamin D supplements can help
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Comparing Thyroid Meds'
+, 'Comparing Thyroid Meds'
+, 'https://www.youtube.com/watch?v=iB_OTbrFJSM'
+, 'V' --type
+, 60 --length
+, 4 --module_id
+, 'A' --status
+, 1 --sort
+, $$One grain of natural thyroid is in the ballpark of 100mcg of T4 only
+When a patient changes thyroid medication I prefer to go down slightly and then adjust
+It is dangerous to get too much thyroid medication
+If the patient weighs 200lbs then should never need more than 200 mcg T4 or 2 grains of natural thyroid
+T3 is not used by itself
+Different brands of thyroid medication can have different effects on a patient, probably because of their inactive ingredients
+I try to minimize changing thyroid brands on a patient if not necessary
+Most patients should start by removing iodine, not starting thyroid medication
+TSH should be on the low side of the normal lab range
+It is not true that T3 and T4 should be on the high side of the lab range
+In one study people who had TSH of 14 removed iodine, 78% went to TSH < 3
+First to months remove iodine and take multi, third month reduce dose by 50mcg  
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Thyroid Deprescribing'
+, 'Everything You Need to Know About Deprescribing Safely'
+, 'https://www.youtube.com/watch?v=CebgQh-DiXM'
+, 'V' --type
+, 60 --length
+, 4 --module_id
+, 'A' --status
+, 1 --sort
+, $$30-45% of people on thyroid medication do not need to be on those medications
+It is more likely a patient can get off thyroid medications if
+    Less than 4 years on medication
+    Did not have low t4 levels initially
+    Is on a lower dose of medication
+    Currently, TSH is under 1.8
+Do not deprescribe if the patient is pregnant or nursing
+Hypothyroidism means high TSH and low t4 or free t4
+Subclinical hypothyroidism means elevated TSH and normal t4 or free t4
+Euthyroid means all thyroid markers are in a good range
+A recent meta-analysis of 1700 studies found 34% of people could get off thyroid meds
+If antibodies and tissue loss on ultrasound then less likely to get off meds
+Removal of iodine can result in getting off meds 
+Important to have micronutrient sufficiency, take a multivitamin
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Iodine blood tests'
+, 'Blood tests for iodine?'
+, 'https://www.youtube.com/watch?v=iaZTbjhldHs'
+, 'V' --type
+, 60 --length
+, 5 --module_id
+, 'A' --status
+, 1 --sort
+, $$Serum iodine is high only if the kidney can not clear the iodine
+Serum iodine is not helpful, only used for toxicology
+Serum iodine will not show if you are getting too much iodine in the diet
+Serum iodine does not correlate with urinary iodine for an individual
+Ideal iodine serum is 50mcg to 200mcg
+Test urinary iodine if patient not sure they have lowered iodine enough
+Lowering iodine intake gives big results
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Iodine test interpretation'
+, 'How to read an iodine test'
+, 'https://www.youtube.com/watch?v=58WWCFezkk0'
+, 'V' --type
+, 60 --length
+, 5 --module_id
+, 'A' --status
+, 2 --sort
+, $$ //
+Iodine in supplements can cause thyroid disease
+Urinary iodine with creatine is the best iodine test
+The best time to test urinary iodine is after reducing iodine intake, not before.
+No value is testing urinary iodine before reducing iodine intake
+WHO recommends 50mcg to 199mcg per day
+Over 200mcg iodine per day can cause disease
+Iodine 20mcg to 50mcg per day ok for a while
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Low TSH with Low T3'
+, 'Low TSH with Low T3'
+, 'https://www.youtube.com/watch?v=SXukmsBOihY'
+, 'V' --type
+, 60 --length
+, 4 --module_id
+, 'A' --status
+, 3 --sort
+, $$ //--video found by accident it is unlisted
+Patients believe free T3 should be in the high side of the lab range, so doctors often give more T3
+TSH changes first, free hormones change later
+Body may not want high free T3
+Healthy people have a wide range of T3 levels, not always high
+It is not true that T3 should always be high
+High t3 can cause many diseases
+TSH is more important than free T3
+TSH low can be dangerous for some people
+Ideal is TSH low end of normal, and free T3 T4 anywhere in the range
+If high thyroid medication needed for the patient to feel well then the patient is tired for other reasons
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Reversing Subclinical Hypothyroidism'
+, 'Reversing Subclinical Hypothyroidism'
+, 'https://www.youtube.com/watch?v=XmB0_ToROyc&t=200s'
+, 'V' --type
+, 60 --length
+, 4 --module_id
+, 'A' --status
+, 4 --sort
+, $$A study shows that removing iodine can reverse thyroid disease
+Subclinical hypothyroidism is TSH above range, but T4 has not yet dropped low, most people have this
+Overt hypothyroidism is TSH high ie 10 and T4 low
+$$
+, null
+, now()
+);
+
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('The 6 Iodine Levels'
+, 'Which Of The 6 Iodine Levels Do You Currently Belong To?'
+, 'https://www.youtube.com/watch?v=Z5OK6YXjSrA'
+, 'V' --type
+, 60 --length
+, 5 --module_id
+, 'A' --status
+, 5 --sort
+, $$Reduced iodine intake can reverse thyroid disease
+$$
+, null
+, now()
+);
+
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Thyroid Tests'
+, 'What Thyroid Tests Do You Need To Get?'
+, 'https://www.youtube.com/watch?v=FfZXvjSAjQ0'
+, 'V' --type
+, 60 --length
+, 4 --module_id
+, 'A' --status
+, 1 --sort
+, $$Typically a doctor will only test TSH
+If patient has severe thyroid disease the TSH test is helpful
+But it patient is not at that worst stage, the TSH will not show the disease
+at early stage of thyroid disease the TSH will not yet be high
+Elevated TSH at 2 to 3, 3 to 4, if consistently high, and with symptoms, can be significant
+At initial patient screening check thyroid antibodies
+Free T3 and free T4 changes later in time so these are not important to test
+If patient known to have throid disease then get ultrasound image to check for nodules, precancerous signs
+To check patients existing thyroid dose check only TSH and check no other tests
+Check free T3 if taking pure T3 but T3 only changes later after TSH
+If taking dessicated thyroid check only TSH
+Do not test reverse T3, if high probably taking too much medication
+Check total T3 for managing hyperthyroidism
+T3 update is not helpful
+T4 index is old and not needed
+TSH takes 3 months to reach a steady state
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Naturally Increase Thyroid Hormones'
+, 'How Can You Naturally Increase Thyroid Hormones?'
+, 'https://www.youtube.com/watch?v=8UIlQ-macEM'
+, 'V' --type
+, 60 --length
+, 4 --module_id
+, 'A' --status
+, 1 --sort
+, $$Too much iodine in those who can not tolerate it will slow down the thyroid
+Even normal amounts of iodine can perpetuate thyroid disease
+If T4 has not yet gone below range then there is a higher chance of regaining thyroid function
+Multiple controlled human studies show people can regain thyroid function by lowering iodine
+Weight loss can improve thyroid function
+Try to deprescribe medication, there are multiple studies on this showing 30-40% of patients can stop their medication
+Deprescribing success is not as likely if T4 was low at initial diagnosis
+Cortisol regulation is also important, should have a good cortisol slope
+Suspect cortisol if crash at afternoon or wake up at 3 am
+If cortisol issues then use the adrenal reset diet [moving carbs to dinner]
+Resolving nutrient deficiencies such as selenium and zinc, take a multivitamin
+Detoxify mercury and lead, can worsen inflammation
+If TSH decreases that means the patient is making more hormone
+Never rely on one reading, better to rely on a trend of readings
+Do not allow TSH to go too low, if TSH low then thyroid cant grow
+Decreased antibodies might indicate a decreased attack on the thyroid
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Is B6 Toxicity Holding Back Your Health?'
+, 'Is B6 Toxicity Holding Back Your Health?'
+, 'https://www.youtube.com/watch?v=j95OA-XRy_s'
+, 'V' --type
+, 60 --length
+, 13 --module_id
+, 'A' --status
+, 5 --sort
+, $$Vitamin B6 toxicity is common
+In the United States, about 18-35% of adults are somewhere above range.
+Synptoms include anxiety, nerve pain, tremors, insomnia
+The form of pyridoxal phosphate does not create toxicity issues.
+Synthetic B6 comes from processed foods and cause a problem
+Food sources of B6 are not an issue
+24 mg of B6 can be harmful to some people
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Too Much Iodine and Thyroid Symptoms'
+, 'Too Much Iodine and Thyroid Symptoms'
+, 'https://www.youtube.com/watch?v=IS6gqO2TQ_w'
+, 'V' --type
+, 60 --length
+, 5 --module_id
+, 'A' --status
+, 5 --sort
+, $$If thyroid disease then remove all sources of iodine
+If the person did not improve after removing all iodine then test urinary iodine to creatine ratio
+If levels are not below 49mcg iodine per gram of creatinine then the person has further to go
+Do not test urinary iodine before removing iodine
+Some people have a narrow range of iodine tolerance.  Lower or higher can cause disease.
+Iodine in urine reflects 3-6 months of the past
+It takes 10 urinary tests to get a result within 20% accuracy
+A urinary challenge test is of no legitimate purpose
+Serum iodine is only used for toxicology
+Thyroglobulin test is not a helpful test for an individual
+Hair iodine test is not helpful
+Skin iodine test is not helpful
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Sea Salt'
+, 'Discover The Hidden Truth About Sea Salte_original'
+, 'https://www.youtube.com/watch?v=119kOlPD2Q0'
+, 'V' --type
+, 60 --length
+, 5 --module_id
+, 'A' --status
+, 3 --sort
+, $$Best to use low iodine salt
+In prepared foods, if salt has under 500mg sodium then not a problem
+In daily cooking do not use an unbranded sea salt
+Do not use pink Himalayan salt, has double the iodine
+Celtic brand salt light grey is good
+Maldens finishing salt is good
+Salt will not provide large amounts of most minerals
+Diamond brand kosher salt is the one I use
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+($$Thyroid Meds Not Working - Dr Christianson$$
+, $$19 Reasons Why Your Thyroid Meds Won't Work$$
+, 'https://www.youtube.com/watch?v=3Py0uTbMsko'
+, 'V' --type
+, 60 --length
+, 4 --module_id
+, 'A' --status
+, 1 --sort
+, $$If thyroid medication does not seem to work the reasons could be:
+Try avoiding coffee, can make thyroid medication hard to absorb
+Take thyroid medication in the morning far away from any other suplements or foods
+Starting or stoping oral estrogen contraceptive can ones response to thyroid medication
+Autoimmune gastritis can cause one to not abosrb the medication
+Morning dosing is best for most.  Some people do well with nighttime dosing.
+Take thyroid medication one time in a day, not more times
+Patients make mistakes in taking the wrong potency
+Anemia can skew thyroid levels
+Do not use compounded thyroid medications
+Use better medications such as WP Thyroid and Naturethroid
+Take thyroid medication away from food
+Do not take thyroid meds with orange juice that has calcium
+Some patients will not do well with T4 only meds
+T2 can help so use natural desiccated thyroid
+Pharmacist changing brands can cause a problem. 
+We stock only Tyrosint, WP Thyroid, Naturethroid
+Fatty liver can cause problems, female ALT>18, waist > half of height
+Expired lot is a problem
+Get thyroid tests before taking thyroid meds
+Get thyroid tests three days after probiotics or biotin
+Get thyroid tests within the first 9 days or last 8 days of the menstrual cycle
+$$
+, null
+, now()
+);
+
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('How Much Vitamin D Is Right For You?'
+, 'How Much Vitamin D Is Right For You?'
+, 'https://www.youtube.com/watch?v=aqr_msTygqI'
+, 'V' --type
+, 60 --length
+, 13 --module_id
+, 'A' --status
+, 1 --sort
+, $$Vitamin D has many health benefits
+There are trials showing supplementation some health benefits
+Vitamin D good serum range is 30-50
+Studies usually use 2000 to 10000, most use 4000 per day
+The ideal serum range is 30-50
+I do not recommend cod liver oil, vitamin A is too high
+A friend died at age 70 of heart failure, wrote public letters that he died of excessive vitamin A
+There is a risk of skin cancer from sun
+Clothing will block sun generating vitamin D
+If a person is larger then vitamin d requirements increase
+The form D3 is preferred
+There are benefits from the sun other than getting vitamin D
+2000 IU is a baseline amount for all adults
+If larger BMI or darker skin then need a higher amount
+If a person lives in higher latitude or is not outside at midday or has skin covered with clothes then the person will insufficient vitamin D
+Take vitamin D with food
+30-40% of the population has autoimmune gastritis so they can't absorb nutrients well from supplements.  In that case, a liquid form is better.
+D without K can increase calcification and raise the risk for cardiovascular harm, this is shown in many papers
+/*promotes daily reset pack*/
+if calcium is plant-derived and a form that is well absorbed then one does not need a lot of calcium, because none wasted in calcification
+calcium di malate is the better form
+/*promotes daily reset pack*/
+If liquid vitamin D then I prefer larger drops per ounce, and I prefer 1000 IU per drop. Do not add to other drinks.
+If BMI 25-30 then add a drop, if BMI 31+ then 2 drops
+If higher latitude add a drop
+If darker skin add 1-2 drops
+It takes 3 months for serum levels to change
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('15 causes of fatigue - Dr Christianson'
+, '14 hidden causes of fatigue and their solutions'
+, 'https://www.youtube.com/watch?v=EdT3s3shjwc'
+, 'V' --type
+, 60 --length
+, 2 --module_id
+, 'A' --status
+, 1 --sort
+, $$Energy stimulants are harmful long term
+The following can cause fatigue:
+1. Unhealthy adrenal function can cause fatigue.  This is diagnosed with a salivary cortisol panel.
+2. Sleep apnea or inadequate breathing during sleep can cause fatigue.  This is diagnosed by a sleep study.
+3. Anemia can cause fatigue.  This is diagnosed by blood tests.  IV iron can help.
+4. B12 deficiency can cause fatigue.  This is diagnosed by methylmalonic acid and blood tests.
+High serum B12 is ok if taking supplements
+5. Caffeine can cause fatigue.  Try stopping caffeine for a while.
+6. Lack of hydration can cause fatigue.  
+7. Depression can cause fatigue
+Screen thyroid function
+Try exercising daily 
+Get omega-3 fats in your diet
+8. Epstein-Barr Virus (EBV) can cause fatigue
+9. Food intolerances can cause fatigue
+10. Heart disease can cause fatigue
+11. Hypoglycemia can cause fatigue
+12. Hypothyroidism
+13. Magnesium deficiency
+14. Urinary Tract Infection (UTI)
+15. Vitamin D deficiency. Serum level of 40-55 is ideal
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Top Priority: How to Avoid Plastic Today'
+, 'Top Priority: How to Avoid Plastic Today'
+, 'https://www.youtube.com/watch?v=MmAGRy92NvU'
+, 'V' --type
+, 60 --length
+, 15 --module_id
+, 'A' --status
+, 1 --sort
+, $$Plastic compounds are endocrine disrupters
+Sperm counts are down by 50%
+Men can get breasts from plastic compunds
+Children are having early menstruation
+BPA is a problem
+BPA free can be BPS which is just as dangerous
+Phalates are a problem
+Plastic food wrap is a problem
+Farm raised fish is a source of plastic
+Fat in food makes plastic get more absorbed
+Cash register receipts have phalates
+/*skip sons joke in the middle*/
+Canned food, childrens toys, plastic bottles, toothbrushes, vynal shoes, styofoam
+Glass, steel, and silicon are harmless
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Toxicology Testing'
+, 'Toxicology Testing'
+, 'https://www.youtube.com/watch?v=d8hhedv21cw'
+, 'V' --type
+, 60 --length
+, 15 --module_id
+, 'A' --status
+, 1 --sort
+, $$In the early 1900's heavy metals in our environment increased precipitously
+Many of these toxins can cause harmful effects on our health
+When I was young I had 14 dental amalgams (amalgams contain mercury).
+In college I ate a can of tuna per day for years; that is a lot of mercury. I had treatment to get the mercury out of my body.
+These toxins [heavy metals] go deep inside our body including the brain, liver, and kidneys.
+Elevated ALT, AST, or bilirubin are indirect tests of possible toxic burden, they will not always show the problem.
+Organic Acid tests are not specific and so they are not useful
+Toxins are natural poisons.  Toxicants are synthetic, human-made, toxic chemicals.
+Hair analysis tests are not useful for individuals
+Blood tests only show recent exposure for the last few days so not useful
+RBC and whole blood cell tests show three-month exposure, but many metals do not 
+Mercury speciation tests differentiate types of mercury, valid not useful
+Urine toxic metal tests are the best tests.  The non provoked version is not useful.  Must take a provoking agent.
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('DM Toxins'
+, 'DM Toxins'
+, 'https://www.youtube.com/watch?v=IE8AS3mJdtQ'
+, 'V' --type
+, 60 --length
+, 15 --module_id
+, 'A' --status
+, 1 --sort
+, $$The scientific data is conclusive that toxic chemicals can cause diabetes
+1. Phalates are in cosmetics and plastic packaging and food storage containers
+    Use glass to store food
+    Do not use saran wrap
+2. Polycyclic aromatic hydrocarbons (PAHs) are a problem
+    Do not smell gas when at a gas station
+    Do not consume burned meats
+3. PCBs
+    Eat smaller fish with a small mouth
+    Farmed fish is a concern
+4. Arsenic is in water
+    10% of the water supply is not safe
+    Reverse osmosis is my favorite type of filter
+    Alcohol and wine is high in arsenic
+Drink one ounce of water per pound of body weight
+Consume 30-40 grams of fiber per day
+Resistant fiber is especially powerful for detoxing the body
+Sweat 3 or more times per week
+ALT and female > 20 is suspicious for toxic chemicals
+Bilirubin > 0.8 can indicate PCBs 
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Red Meat - Dr Christianson & Dr Gabrielle Lyon'
+, 'Podcast - How Red Meat Can Improve Your Health with Dr. Gabrielle Lyon'
+, 'https://www.youtube.com/watch?v=x7rHwcikSvc'
+, 'V' --type
+, 60 --length
+, 4 --module_id
+, 'A' --status
+, 1 --sort
+, $$Red meat has a high amount of nutrients
+We have been eating red meat for millions of years
+There is strong evidence to include plants in the diet
+There is no strong evidence to exclude animal foods from the diet
+Protein helps metabolism as people age
+There is no proven relationship between protein and any cancer
+/*16:00 has an advertisement for this clinic*/
+Cattle contribute only 3% of greenhouse gases
+The data is so strong regarding protein improving health as we age, blood sugar, and metabolism.
+Countless times a patient had major health symptoms, I suspected a patient had thyroid or hormone problems, I asked the patient to consume 1/4 to 1/3 of calories from protein, countless times the patient had been chronically fatigued or other major health symptoms, the increase in protein caused the person to reverse their symptoms.
+50% of the fat in red meat is monosaturated
+Reducing protein too low have consequences on muscle tissue
+Sarcopenia is a problem of aging
+There are many health benefits to increasing protein
+We do not know the long term effects of using protein powders instead of real food protein
+Consume 1 gram per pound of muscle weight
+Lose fat not weight
+Fears of any particular natural food that we have eaten for a very long time do not have good evidence
+Lack of protein can cause a person to overeat
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Do You Have Thyrogastric Syndrome'
+, 'Do You Have Thyrogastric Syndrome'
+, 'https://www.youtube.com/watch?v=Bob_JOFD5bU'
+, 'V' --type
+, 60 --length
+, 4 --module_id
+, 'A' --status
+, 1 --sort
+, $$A common condition is autoimmune gastritis or atrophic gastritis, also known as thyrogastric syndrome
+Symptoms are fatigue, hair loss, GI symptoms such as gas bloating, heartburn, irregular stool, yeast overgrowth, bowel infection, or nutrients are low such as iron or B12.
+Most have no symptoms so underdiagnosed
+Some studies show 20% of the population have this condition
+If thyroid disease then 30-40% of the population have this
+Symptoms can be in the upper GI tract, heartburn, difficulty swallowing, stomach pain, nausea, vomiting, things are stuck going down
+Symptoms can be in the lower GI tract, abdominal pain or discomfort, gas, bloating, diarrhea constipation, stool leakage, or incontinence
+Gastritis that is not autoimmune can be caused by H Pylori
+/*symptoms are heartburn, low nutrients, ulcers... his statements become unclear, the online article is also unclear*/
+One of the first things that happen is iron starts to decrease
+Test for parietal cell antibodies and intrinsic factor antibodies
+We can see if stomach damage by testing gastrin
+If stomach damage then order an upper endoscopy to sample stomach
+Test full iron panel and B12 
+If overt anemia or B12 anemia or high gastrin then endoscopy with biopsy
+Virtual biopsy or serum biopsy is available only in Europe
+For the first 1-2 decades there will be antibodies, but no symptoms, no damage to the stomach, ferritin is decreasing for those decades, no elevated gastrin
+In the later stages, B12 will be low
+Antacids are not good enough
+Hydrochloric acid (HCL) supplements are common used but can make it worse, dangerous
+Iron IV can fix iron deficiency in one hour
+Fixing micronutrients can be life-changing
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Hyperparathyroidism – hidden cause of anxiety, IBS, and fatigue'
+, 'Hyperparathyroidism – hidden cause of anxiety, IBS, and fatigue'
+, 'https://www.youtube.com/watch?v=T0r20zUg40Y'
+, 'V' --type
+, 60 --length
+, 6 --module_id
+, 'A' --status
+, 1 --sort
+, $$--he forgot to link to https://www.drchristianson.com/hyperparathyroidism-hidden-cause-of-anxiety-ibs-and-fatigue/
+Hyperparathyroidism is not rare
+This may not show up on common blood screening
+Symptoms are fatigue, digestive issues, anxiety, muscle aches
+Serum calcium is not related to the nutritional status of calcium
+Calcitonin is a perk of natural desiccated thyroid
+The correct serum level of calcium is essential for health
+If serum calcium is high then test parathyroid hormone.
+If calcium is normal or high and if the parathyroid hormone is high then the patient might have parathyroid disease
+High serum calcium is always significant and should not be ignored, even if just a little high, even if one time.
+High serum calcium could be kidney disease or cancer.
+The preceding information is primary hyperparathyroidism
+/*Secondary hyperparathyroidism could mean kidney failure or calcium or vitamin D deficiency*/
+A little less than 1% of the population has primary hyperparathyroidism
+The cause of hyperparathyroidism is not known
+Symptoms are kidney stones, gallstones, bone pain, bone fractures, feeling tired, do not feel well, GI symptoms, IBS heartburn, ulcers, constipation, frequent urination and thirst, anxiety, brain fog, difficulty concentrating
+If calcium is 9.8 or above then test parathyroid hormone
+If calcium 9.9 and parathyroid is elevated this could still be parathyroid disease
+If on the high side of calcium then should be on the low side of parathyroid hormone
+If both calcium and parathyroid are high then something is wrong, review with the parathyroid surgeon
+Select a surgeon that does a large amount of these surgeries
+Correcting parathyroid issue can be radically life-changing
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Are Chelating Medicines Safe?'
+, 'Are Chelating Medicines Safe?'
+, 'https://www.youtube.com/watch?v=FybkhtdqhEU'
+, 'V' --type
+, 60 --length
+, 15 --module_id
+, 'A' --status
+, 1 --sort
+, $$Heavy metals build up in the body
+It is critical to get them out to get maximal health back again
+Fiber, water, greens are good to get waster that is already circulating
+Heavy metals that get stuck in organs are the ones that drive symptoms and disease processes
+Challenge testing will show how much metals are in the body
+To address metals deep in the body require chelating medicines
+A few people per 1000 are allergic to the chelating agent
+Chelating agents are protein byproducts so they are not inherently foreign or synthetic
+Adverse events do not occur with people who have average levels of metals
+Redistribution does not occur from low concentration to high concentration tissues
+To address redistribution just chelate more
+There are some good minerals lost but those amounts are very small and not a barrier to treatment
+Avoid alcohol and caffeine during chelation
+Hydration and bowel movements are important
+Mood gets better, energy improves, muscle cramps decrease, digestive function improves, thyroid antibodies decrease from chelation
+Radical health improvements occur from chelation
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('How to Help Low Morning Cortisol'
+, 'How to Help Low Morning Cortisol'
+, 'https://www.youtube.com/watch?v=-wmzrW4VO_Y'
+, 'V' --type
+, 60 --length
+, 4 --module_id
+, 'A' --status
+, 1 --sort
+, $$Adrenal fatigue is a myth
+The symptoms are not a myth
+The adrenals are not tired
+If morning cortisol is low it is because the body does not want it
+Cortisol should be higher when a person wakes up in the morning, and lower at night
+The cortisol slope should decline over the day
+Check for Addison's disease which would show high ACTH from the pituitary and low cortisol.  
+Addison's disease will often show adrenal antibodies on a blood test
+The root cause of low morning cortisol could be sleep apnea, not necessarily only males
+Workplace stress can cause this, cortisol tests can show better results on weekends.
+If one cant leave a stressful workplace then try reframing
+Anxiety or PTSD can drive low cortisol.  Mindfulness can help.
+Fuel overload can be a cause.  
+A non-regular schedule can be a cause.  Breakfast should be within an hour of waking up.
+Light hygiene can be a cause.
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Lipoprotein a - Dr Christianson'
+, 'Have you ever checked your Lipoprotein a?'
+, 'https://www.youtube.com/watch?v=fnfkpLnFq4s'
+, 'V' --type
+, 60 --length
+, 4 --module_id
+, 'A' --status
+, 1 --sort
+, $$Lp(a) looks like LDL except it has an added protein attached called apolipoprotein (a)
+Serum level over 50 is high risk
+Lp(a) has nothing to do with lifestyle
+Nothing can lower Lp(a) except for apheresis
+If Lp(a) high and LDL kept lower then less risk
+Lp(a) cant be decreased but its risk can be decreased
+If Lp(a) is high then niacin can lower it but not lower its risk
+Changing surrogate markers does not always change its risk
+Reducing LDL below 70 is ideal
+Controlled trial of resistant starch can decreased LDL more than cholesterol-lowering medication
+Resistant starch improved insulin metabolism, improved glucose, and better gut microbiome
+$$
+, null
+, now()
+);
+
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('Leaky Liver - Dr Christianson'
+, 'Do you have a Leaky Liver?'
+, 'https://www.youtube.com/watch?v=-ObM9EwGOAo'
+, 'V' --type
+, 60 --length
+, 12 --module_id
+, 'A' --status
+, 1 --sort
+, $$Leaky liver is the state in which the liver is overloaded with fuel and is leaking extra fuel into the bloodstream
+When the liver is healthy it can store extra fuel, and release the fuel when there is a deficit
+When the liver is overloaded with fuel, extra fuel spills out of the liver, harming one's health
+Diabetes is more driven by the liver than the pancreas
+If the liver has over 5% fat that is fatty liver disease
+If ALT 18 women or 30 for men then possible fatty liver
+Ultrasound can show fatty liver not rule out fatty liver
+The cause is too much fuel
+Micronutrients are important
+A low burden of toxic chemicals is needed to burn fuel effectively
+To reverse this consume enough protein, consume fewer calories, consume resistant starch fiber.
+$$
+, null
+, now()
+);
+
+/*
+insert into class(title, title_original, url, type, length, module_id, status, sort, highlight, notes, created) values 
+('title'
+, 'title_original'
+, 'url'
+, 'V' --type
+, 60 --length
+, 4 --module_id
+, 'A' --status
+, 1 --sort
+, $$
+$$
+, null
+, now()
+);
+*/
+
+--end of class data
+
+drop table if exists client_class cascade;
+create table client_class (
+  client_id int,
+  class_id int,
+  completion_dt timestamp
+);
+alter table client_class add primary key (client_id, class_id);
+alter table client_class add foreign key (client_id) references client(id);
+alter table client_class add foreign key (class_id) references class(id);
+
+insert into client_class values (1, 1, now());
+insert into client_class values (1, 2, now());
+insert into client_class values (1, 3, now());
+insert into client_class values (1, 4, now());
+
+select 'Done' as message;
